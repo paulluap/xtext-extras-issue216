@@ -10,3 +10,7 @@ Element:
 
 Collection:
 	'collection' name=ID 'of' elementRef=[Element];
+	
+//JvmTypeRef:
+//	jvmRef = JvmTypeReference
+//;

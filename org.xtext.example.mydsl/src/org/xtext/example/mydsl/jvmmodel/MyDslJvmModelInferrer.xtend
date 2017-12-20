@@ -9,6 +9,7 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.xtext.example.mydsl.myDsl.Element
 import org.xtext.example.mydsl.myDsl.Collection
+import org.eclipse.xtext.EcoreUtil2
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -17,27 +18,20 @@ import org.xtext.example.mydsl.myDsl.Collection
  * which is generated from the source model. Other models link against the JVM model rather than the source model.</p>     
  */
 class MyDslJvmModelInferrer extends AbstractModelInferrer {
-
 	@Inject extension JvmTypesBuilder
-	
 	def dispatch void infer(Element element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		acceptor.accept(element.toClass(element.name))[
-//			it.superTypes += element.typeRef.type.typeRef()
-			it.superTypes += element.typeRef.cloneWithProxies
+			it.superTypes += "java.util.function.Supplier".typeRef(
+				element.typeRef.cloneWithProxies
+			)
+			it.members += element.toField("foo", element.typeRef.cloneWithProxies )
 		]
 	}
 	def dispatch void infer(Collection collection, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		acceptor.accept(collection.toClass(collection.name))[
-//			it.superTypes += "java.util.Collection".typeRef(
-//				collection.elementRef.typeRef.type.typeRef
-//			)
 			it.superTypes += "java.util.Collection".typeRef(
-				collection.elementRef.typeRef.cloneWithProxies
+				collection.elementRef.typeRef.qualifiedName.typeRef 
 			)
-			it.members += collection.toField("foo", collection.elementRef.typeRef.cloneWithProxies)
-			it.members += collection.toField("foos", "java.util.Collection".typeRef(
-				collection.elementRef.typeRef.cloneWithProxies
-			))
 		]
 	}
 }

@@ -31,16 +31,6 @@ class MyDslParsingTest {
 	@Inject
 	ParseHelper<Model> parseHelper
 
-	/*
-	 * generated java source is invalid 
-	 * 
-	 * using type.typeRef instead of type.cloneWithProxies in MyDslJvmModelInferrer
-	 * generates  
-	 * public class MyCollection implements Collection<String> {
-	 * instead of 
-	 * public class MyCollection implements /asterisk Collection<Object> asterisk/
-	 * 
-	 */
 	@Test
 	def void compilationTest1() {
 		models(true, 
@@ -52,26 +42,27 @@ class MyDslParsingTest {
 			eResource.contents.filter(JvmDeclaredType).compile(true)
 		].join("\n")=>[
 			Assert.assertEquals('''
+			import java.util.function.Supplier;
+			
 			@SuppressWarnings("all")
-			public class MyElement extends String {
+			public class MyElement implements Supplier<String> {
 			}
 			
 			import java.util.Collection;
 			
 			@SuppressWarnings("all")
-			public class MyCollection implements /* Collection<Object> */ {
-			  private String foo;
-			  
-			  private /* Collection<Object> */Object foos;
+			public class MyCollection implements Collection<String> {
 			}
 			'''.toString, it)
 			
 		]
 	}
 	
-	/* validation error: 
-	 * MyElement cannot be resovled 
-	 * while in eclipse, it is resolved, and the same code as in test1 is generated
+	/**
+	 * here the code causes: 
+	 * org.eclipse.xtext.xbase.resource.BatchLinkableResource.handleCyclicResolution
+	 * 
+	 * the type argument ends up with Supplier<void>
 	 */
 	@Test
 	def void compilationTest2(){
@@ -85,13 +76,22 @@ class MyDslParsingTest {
 		).map[
 			eResource.contents.filter(JvmDeclaredType).compile(true)
 		].join("\n")=>[
-			println(it)
+			Assert.assertEquals('''
+			import java.util.Collection;
+			
+			@SuppressWarnings("all")
+			public class MyCollection implements Collection<String> {
+			}
+			
+			import java.util.function.Supplier;
+			
+			@SuppressWarnings("all")
+			public class MyElement implements Supplier<void> {
+			}
+			'''.toString, it)
 		]
 	}
 	
-	/*
-	 * this one is correct
-	 */
 	@Test
 	def void compilationTest3(){
 		models(true, 
@@ -106,17 +106,16 @@ class MyDslParsingTest {
 		].join("\n")=>[
 			Assert.assertEquals(
 			'''
+			import java.util.function.Supplier;
+			
 			@SuppressWarnings("all")
-			public class MyElement extends String {
+			public class MyElement implements Supplier<String> {
 			}
 			
 			import java.util.Collection;
 			
 			@SuppressWarnings("all")
 			public class MyCollection implements Collection<String> {
-			  private String foo;
-			  
-			  private Collection<String> foos;
 			}
 			'''.toString, it)
 		]
@@ -134,21 +133,22 @@ class MyDslParsingTest {
 			eResource.contents.filter(JvmDeclaredType).compile(true)
 		].join("\n")=>[
 			Assert.assertEquals('''
-			@SuppressWarnings("all")
-			public class MyString extends String {
-			}
+			import java.util.function.Supplier;
 			
 			@SuppressWarnings("all")
-			public class MyElement extends MyString {
+			public class MyString implements Supplier<String> {
+			}
+			
+			import java.util.function.Supplier;
+			
+			@SuppressWarnings("all")
+			public class MyElement implements Supplier<MyString> {
 			}
 			
 			import java.util.Collection;
 			
 			@SuppressWarnings("all")
-			public class MyCollection implements /* Collection<Object> */ {
-			  private MyString foo;
-			  
-			  private /* Collection<Object> */Object foos;
+			public class MyCollection implements Collection<MyString> {
 			}
 			'''.toString, it)
 		]
@@ -189,12 +189,12 @@ class MyDslParsingTest {
 			val fileName = "foo" + (i + 1).toString + ".mydsl"
 			val resource = set.createResource(URI.createURI(fileName))
 			resource.load(new StringInputStream(content), null)
-            resource.contents
-            EcoreUtil2.resolveLazyCrossReferences(resource, CancelIndicator.NullImpl)
+
 			Assert.assertEquals(resource.getErrors().toString(), 0, resource.getErrors().size());
 		]
 		for (Resource resource : <Resource>newArrayList(set.getResources())) {
-//            val model =  resource.getContents().get(0) as PackageModel
+            resource.contents
+            EcoreUtil2.resolveLazyCrossReferences(resource, CancelIndicator.NullImpl)
 			val model = resource.allContents.findFirst[it instanceof Model] as Model
 			if (model != null)
 				result.add(model);
