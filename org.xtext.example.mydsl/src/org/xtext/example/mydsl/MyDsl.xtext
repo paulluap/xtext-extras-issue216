@@ -1,0 +1,12 @@
+grammar org.xtext.example.mydsl.MyDsl with org.eclipse.xtext.xbase.annotations.XbaseWithAnnotations
+generate myDsl "http://www.xtext.org/example/mydsl/MyDsl"
+Model:
+	elements+=Entity*;
+Entity:
+	Element | Collection;
+
+Element:
+	'element' name=ID ':' typeRef=JvmTypeReference;
+
+Collection:
+	'collection' name=ID 'of' elementRef=[Element];

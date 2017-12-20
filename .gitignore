@@ -1,0 +1,11 @@
+bin/
+target/
+build/
+.gradle/
+generated/
+generated-sources/
+.DS_Store
+src-gen/
+xtend-gen/
+src-gen/
+.antlr-generator-3.2.0-patch.jar
