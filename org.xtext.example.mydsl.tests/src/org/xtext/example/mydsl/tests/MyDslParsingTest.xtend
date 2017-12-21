@@ -87,7 +87,7 @@ class MyDslParsingTest {
 			import java.util.function.Supplier;
 			
 			@SuppressWarnings("all")
-			public abstract class MyElement implements /* Supplier<String> */ {
+			public abstract class MyElement implements Supplier<String> {
 			  private String foo;
 			}
 			'''.toString, it)
