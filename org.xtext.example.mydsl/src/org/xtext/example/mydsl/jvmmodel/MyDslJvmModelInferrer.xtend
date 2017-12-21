@@ -4,12 +4,12 @@
 package org.xtext.example.mydsl.jvmmodel
 
 import com.google.inject.Inject
+import org.eclipse.xtext.common.types.util.TypeReferences
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import org.xtext.example.mydsl.myDsl.Element
 import org.xtext.example.mydsl.myDsl.Collection
-import org.eclipse.xtext.EcoreUtil2
+import org.xtext.example.mydsl.myDsl.Element
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -19,13 +19,15 @@ import org.eclipse.xtext.EcoreUtil2
  */
 class MyDslJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
+	@Inject extension TypeReferences
 
 	def dispatch void infer(Element element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		acceptor.accept(element.toClass(element.name)) [
 			it.^abstract = true
-			it.superTypes += "java.util.function.Supplier".typeRef(
-				element.typeRef
-			)
+			it.superTypes += "java.util.function.Supplier".getTypeForName(element, element.typeRef.cloneWithProxies)
+//			it.superTypes += "java.util.function.Supplier".typeRef(
+//				element.typeRef
+//			)
 			it.members += element.toField("foo", element.typeRef)
 		]
 	}
