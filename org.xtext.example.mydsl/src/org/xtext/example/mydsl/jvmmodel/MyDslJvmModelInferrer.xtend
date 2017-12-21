@@ -13,24 +13,26 @@ import org.eclipse.xtext.EcoreUtil2
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
- *
+ * 
  * <p>The JVM model should contain all elements that would appear in the Java code 
  * which is generated from the source model. Other models link against the JVM model rather than the source model.</p>     
  */
 class MyDslJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
+
 	def dispatch void infer(Element element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-		acceptor.accept(element.toClass(element.name))[
+		acceptor.accept(element.toClass(element.name)) [
 			it.superTypes += "java.util.function.Supplier".typeRef(
-				element.typeRef.cloneWithProxies
+				element.typeRef
 			)
-			it.members += element.toField("foo", element.typeRef.cloneWithProxies )
+			it.members += element.toField("foo", element.typeRef)
 		]
 	}
+
 	def dispatch void infer(Collection collection, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-		acceptor.accept(collection.toClass(collection.name))[
+		acceptor.accept(collection.toClass(collection.name)) [
 			it.superTypes += "java.util.Collection".typeRef(
-				collection.elementRef.typeRef.qualifiedName.typeRef 
+				collection.elementRef.typeRef.qualifiedName.typeRef
 			)
 		]
 	}
