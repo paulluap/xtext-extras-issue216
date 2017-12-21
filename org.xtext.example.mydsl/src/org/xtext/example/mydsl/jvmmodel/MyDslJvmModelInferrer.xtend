@@ -22,6 +22,7 @@ class MyDslJvmModelInferrer extends AbstractModelInferrer {
 
 	def dispatch void infer(Element element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		acceptor.accept(element.toClass(element.name)) [
+			it.^abstract = true
 			it.superTypes += "java.util.function.Supplier".typeRef(
 				element.typeRef
 			)
@@ -31,6 +32,7 @@ class MyDslJvmModelInferrer extends AbstractModelInferrer {
 
 	def dispatch void infer(Collection collection, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		acceptor.accept(collection.toClass(collection.name)) [
+			it.^abstract = true
 			it.superTypes += "java.util.Collection".typeRef(
 				collection.elementRef.typeRef.qualifiedName.typeRef
 			)
