@@ -45,13 +45,14 @@ class MyDslParsingTest {
 			import java.util.function.Supplier;
 			
 			@SuppressWarnings("all")
-			public class MyElement implements Supplier<String> {
+			public abstract class MyElement implements Supplier<String> {
+			  private String foo;
 			}
 			
 			import java.util.Collection;
 			
 			@SuppressWarnings("all")
-			public class MyCollection implements Collection<String> {
+			public abstract class MyCollection implements Collection<String> {
 			}
 			'''.toString, it)
 			
@@ -80,13 +81,14 @@ class MyDslParsingTest {
 			import java.util.Collection;
 			
 			@SuppressWarnings("all")
-			public class MyCollection implements Collection<String> {
+			public abstract class MyCollection implements Collection<String> {
 			}
 			
 			import java.util.function.Supplier;
 			
 			@SuppressWarnings("all")
-			public class MyElement implements Supplier<void> {
+			public abstract class MyElement implements /* Supplier<String> */ {
+			  private String foo;
 			}
 			'''.toString, it)
 		]
@@ -109,13 +111,14 @@ class MyDslParsingTest {
 			import java.util.function.Supplier;
 			
 			@SuppressWarnings("all")
-			public class MyElement implements Supplier<String> {
+			public abstract class MyElement implements Supplier<String> {
+			  private String foo;
 			}
 			
 			import java.util.Collection;
 			
 			@SuppressWarnings("all")
-			public class MyCollection implements Collection<String> {
+			public abstract class MyCollection implements Collection<String> {
 			}
 			'''.toString, it)
 		]
@@ -136,19 +139,21 @@ class MyDslParsingTest {
 			import java.util.function.Supplier;
 			
 			@SuppressWarnings("all")
-			public class MyString implements Supplier<String> {
+			public abstract class MyString implements Supplier<String> {
+			  private String foo;
 			}
 			
 			import java.util.function.Supplier;
 			
 			@SuppressWarnings("all")
-			public class MyElement implements Supplier<MyString> {
+			public abstract class MyElement implements Supplier<MyString> {
+			  private MyString foo;
 			}
 			
 			import java.util.Collection;
 			
 			@SuppressWarnings("all")
-			public class MyCollection implements Collection<MyString> {
+			public abstract class MyCollection implements Collection<MyString> {
 			}
 			'''.toString, it)
 		]
